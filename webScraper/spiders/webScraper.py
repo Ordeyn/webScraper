@@ -1,6 +1,5 @@
 import scrapy
 
-
 class testSpider(scrapy.Spider):
     name = 'tests'
 
@@ -10,10 +9,17 @@ class testSpider(scrapy.Spider):
 
     def parse(self, response):
         for listItem in response.xpath("//li[@class='product-item']"):
+            
+            productTitle = listItem.xpath("div[@class='product-title']/a/text()")[1].getall()
+            
+            linkTitle = listItem.xpath("div[contains(@class, 'product-card')]/a[starts-with(@href, '/collections/individual-brushes/products/')]/@title").getall()
+            
+            pageNumber = listItem.xpath("//span[contains(@class, 'current')]/text()").get()
+
             yield {
-                'Product Title': listItem.xpath("div[@class='product-title']/a/text()")[1].getall(),
-                'Link Title': listItem.xpath("div[contains(@class, 'product-card')]/a[starts-with(@href, '/collections/individual-brushes/products/')]/@title").getall(),
-                'Page Number': listItem.xpath("//span[contains(@class, 'current')]/text()").get(),
+                'Product Title': productTitle[0].strip(),
+                'Link Title': linkTitle[0].strip(),
+                'Page Number': pageNumber[0].strip(),
             }
 
         next_page = response.css("span.next a::attr('href')").get()
